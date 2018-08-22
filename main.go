@@ -42,6 +42,7 @@ func main() {
 		RedirTCP6 string
 		TCPTun    string
 		UDPTun    string
+		Proxy     string
 	}
 
 	flag.BoolVar(&config.Verbose, "verbose", false, "verbose mode")
@@ -52,6 +53,7 @@ func main() {
 	flag.StringVar(&flags.Server, "s", "", "server listen address or url")
 	flag.StringVar(&flags.Client, "c", "", "client connect address or url")
 	flag.StringVar(&flags.Socks, "socks", "", "(client-only) SOCKS listen address")
+	flag.StringVar(&flags.Proxy, "proxy", "", "(server-only) backend socks5 proxy addr")
 	flag.StringVar(&flags.RedirTCP, "redir", "", "(client-only) redirect TCP from this address")
 	flag.StringVar(&flags.RedirTCP6, "redir6", "", "(client-only) redirect TCP IPv6 from this address")
 	flag.StringVar(&flags.TCPTun, "tcptun", "", "(client-only) TCP tunnel (laddr1=raddr1,laddr2=raddr2,...)")
@@ -144,7 +146,7 @@ func main() {
 		}
 
 		go udpRemote(addr, ciph)
-		go tcpRemote(addr, ciph)
+		go tcpRemote(addr, ciph, flags.Proxy)
 	}
 
 	sigCh := make(chan os.Signal, 1)

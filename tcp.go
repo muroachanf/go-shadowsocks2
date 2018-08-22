@@ -7,6 +7,7 @@ import (
 
 	"github.com/shadowsocks/go-shadowsocks2/core"
 	"github.com/shadowsocks/go-shadowsocks2/socks"
+	"golang.org/x/net/proxy"
 )
 
 // Create a SOCKS server listening on addr and proxy to server.
@@ -74,8 +75,23 @@ func tcpLocal(addr, server string, ciph core.StreamConnCipher, getAddr func(net.
 	}
 }
 
+func netDial(network, addr, proxyAddr string) (net.Conn, error) {
+	timeout := time.Second * 30
+	if proxyAddr == "" {
+		return net.DialTimeout(network, addr, timeout)
+	}
+	dialSocksProxy, err := proxy.SOCKS5("tcp", proxyAddr, nil, &net.Dialer{
+		Timeout:   timeout,
+		KeepAlive: timeout,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return dialSocksProxy.Dial("tcp", addr)
+}
+
 // Listen on addr for incoming connections.
-func tcpRemote(addr string, ciph core.StreamConnCipher) {
+func tcpRemote(addr string, ciph core.StreamConnCipher, proxyAddr string) {
 	l, err := core.Listen("tcp", addr, ciph)
 	if err != nil {
 		logf("failed to listen on %s: %v", addr, err)
@@ -99,7 +115,7 @@ func tcpRemote(addr string, ciph core.StreamConnCipher) {
 				return
 			}
 
-			rc, err := net.Dial("tcp", tgt.String())
+			rc, err := netDial("tcp", tgt.String(), proxyAddr)
 			if err != nil {
 				logf("failed to connect to target: %v", err)
 				return
