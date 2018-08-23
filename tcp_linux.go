@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/shadowsocks/go-shadowsocks2/core"
-	"github.com/shadowsocks/go-shadowsocks2/socks"
+	"github.com/muroachanf/go-shadowsocks2/core"
+	"github.com/muroachanf/go-shadowsocks2/socks"
 )
 
 const (

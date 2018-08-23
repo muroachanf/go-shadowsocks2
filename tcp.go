@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/shadowsocks/go-shadowsocks2/core"
-	"github.com/shadowsocks/go-shadowsocks2/socks"
+	"github.com/muroachanf/go-shadowsocks2/core"
+	"github.com/muroachanf/go-shadowsocks2/socks"
 	"golang.org/x/net/proxy"
 )
 
@@ -80,10 +80,7 @@ func netDial(network, addr, proxyAddr string) (net.Conn, error) {
 	if proxyAddr == "" {
 		return net.DialTimeout(network, addr, timeout)
 	}
-	dialSocksProxy, err := proxy.SOCKS5("tcp", proxyAddr, nil, &net.Dialer{
-		Timeout:   timeout,
-		KeepAlive: timeout,
-	})
+	dialSocksProxy, err := proxy.SOCKS5("tcp", proxyAddr, nil, proxy.Direct)
 	if err != nil {
 		return nil, err
 	}
